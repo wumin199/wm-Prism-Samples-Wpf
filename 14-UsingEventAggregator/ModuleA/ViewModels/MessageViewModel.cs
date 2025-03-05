@@ -26,6 +26,7 @@ namespace ModuleA.ViewModels
 
         private void SendMessage()
         {
+            // 这个Message是来自于MessageViewModel的Message属性，也是来自于UI的输入
             _ea.GetEvent<MessageSentEvent>().Publish(Message);
         }
     }
