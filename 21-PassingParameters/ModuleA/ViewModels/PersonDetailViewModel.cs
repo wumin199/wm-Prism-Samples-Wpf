@@ -32,8 +32,22 @@ namespace ModuleA.ViewModels
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
+
+
+            // RequestNavigate到等价于 add “view”(instance）且不会销毁，会一直挂在TabView下成为TabItem
+            // add “view” ==  PersonDetail + PersonDetailViewModel
+
+            // Navigate多次的话，就会保存有多个TabItem的各自的instance。
+            // 当这里需要做判断，如下所示： rst的判断
+            // 则会重新遍历所有的已经创建的 “view”
+            // 如果某个一返回true，则直接跳转过去
+            // 如果所有的都返回false，则会重新创建一个新的“view”
+
+
+
+
             // true表示重用，不需要销毁和重新创建
-            // false表示重新创建
+            // false表示重新创建新的
 
             var check_person = navigationContext.Parameters["person"] as Person;
             if (check_person != null)
