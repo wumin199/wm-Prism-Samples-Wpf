@@ -31,6 +31,8 @@ namespace ModuleA.ViewModels
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
+            // 不等于1时，可以重用当前试图；
+            // 等于1时，创建新的试图实例
             return PageViews / 3 != 1;
         }
 
