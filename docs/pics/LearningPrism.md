@@ -9,14 +9,11 @@ https://app.pluralsight.com/ilx/video-courses/fca37260-bdfb-4c6a-b6c8-ac6bc30f2d
 
 
 
-
-1. command和click事件
-2. 接口
-3. Ribbon
-4. 案例
-5. Trigger/Command和事件
-6. 数据绑定的案例
-7. [Dependency Injection with Prism](https://docs.prismlibrary.com/docs/dependency-injection/index.xml)
+1. 接口 和 abstract
+2. Ribbon
+3. 案例
+4. [Dependency Injection with Prism](https://docs.prismlibrary.com/docs/dependency-injection/index.xml)
+5. DevExpress
 
 
 ### Mvvm
@@ -583,7 +580,55 @@ public class AgeRangeConverter : IValueConverter
 
 视频：Lesson10
 
-同一个区域，按不同按钮显示不同内容。这个功能就是导航。prism会自动处理Move过程(activate/deactivate)过程
+同一个区域，按不同按钮显示不同内容。这个功能就是导航。prism会自动处理Move过程(activate/deactivate)过程.
+
+navigation的作用：
+1. add view to region（这一点和普通的region一样）
+2. 自动处理move from a view to another，包括自动activate/deactivate等
+3. 基于URI方式
+
+
+IsNavigationTarget：
+
+- false:重新实例化view/viewModel
+- true:重用已有的view/viewModel
+
+View(.xaml) + ViewModel(.cs) 构成 一个 "view"
+这个view可以被放入到region中。
+
+默认情况下，RequestNavigate 会创建一个新的 View 放到 Region 中。
+
+调用时机：
+1.	导航到视图：
+    • IsNavigationTarget：首先调用，决定是否重用现有视图实例。
+    • OnNavigatedTo：如果导航到当前视图，则调用此方法进行初始化或更新操作。
+2.	导航离开视图：
+    • OnNavigatedFrom：当导航离开当前视图时调用，用于执行清理或保存操作。
+
+第一次切导航的时候：`_regionManager.RequestNavigate("PersonDetailsRegion", "PersonDetail", parameters); `的时候，测试发现：
+
+- 会直接调用OnNavigatedTo，而不会调用IsNavigationTarget。
+
+第2切导航的时候，发现会先调用IsNavigationTarget，然后再调用OnNavigatedTo
+
+RequestNavigate 会尝试在区域中创建新的视图
+- 如果区域是 TabControl，会自动创建新的 TabItem
+- 是否创建新的 TabItem 取决于：
+- IsNavigationTarget 的返回值
+    - 当前视图的状态
+    - 导航参数
+    - 可以通过 IsNavigationTarget 控制视图重用
+关键点：
+- 导航会创建新的视图
+- 区域类型决定视图的容器（这里是 TabItem）
+- IsNavigationTarget 控制是否重用视图
+- 每个导航请求都可能创建新的 TabItem
+- 视图重用可以避免创建不必要的 TabItem
+
+
+总结，有同一个区域切换view的情况可以使用，更方便一点。比如：
+1. 常规的换画面。 <ContentControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
+2. TabList中的TabItem处理。 <TabControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
 
 DataContext，就是这个类的依赖属性
 

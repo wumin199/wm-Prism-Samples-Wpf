@@ -13,6 +13,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!--  First Name  -->
@@ -43,5 +45,14 @@
             Grid.Column="1"
             Margin="5"
             Text="{Binding SelectedPerson.Age}" />
+        <TextBlock
+            Grid.Row="3"
+            Margin="5"
+            Text="RandNum:" />
+        <TextBlock
+            Grid.Row="3"
+            Grid.Column="1"
+            Margin="5"
+            Text="{Binding RandNum}" />
     </Grid>
 </UserControl>

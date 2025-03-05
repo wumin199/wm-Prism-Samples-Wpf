@@ -66,6 +66,7 @@ namespace ModuleA.Business
 
         public override string ToString()
         {
+            // 是为了在List中进行显示
             return String.Format("{0}, {1}", LastName, FirstName);
         }
     }

@@ -28,12 +28,17 @@ namespace ModuleA.ViewModels
             CreatePeople();
         }
 
+        // 和前端的： CommandParameter="{Binding SelectedItem, ElementName=_listOfPeople}" 对应
         private void PersonSelected(Person person)
         {
+            //联系前端，是触发 SelectionChanged 才会调用PersonSelected
             var parameters = new NavigationParameters();
+
+            // "person" 是ID， person 是值（object）
             parameters.Add("person", person);
 
             if (person != null)
+                // regionName, viewName(Views/ViewA,ViewB, PersonDetail), parameters
                 _regionManager.RequestNavigate("PersonDetailsRegion", "PersonDetail", parameters);
         }
 

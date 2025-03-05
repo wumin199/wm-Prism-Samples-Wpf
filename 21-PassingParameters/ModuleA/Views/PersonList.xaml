@@ -20,7 +20,7 @@
             <RowDefinition Height="100" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
+        <!--  不指定DisplayMemberPath的话，会将People里面的Item.toString()作为ListBox的Item显示  -->
         <ListBox x:Name="_listOfPeople" ItemsSource="{Binding People}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
