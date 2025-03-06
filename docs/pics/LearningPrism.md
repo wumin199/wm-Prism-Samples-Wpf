@@ -35,6 +35,106 @@ MVVM 的核心原则：
 
 ### [TODO] 接口 和 abstract class
 
+
+案例：`IConfirmNavigationRequest` 和 `IRegionAware`
+
+```cs
+namespace Prism.Navigation.Regions
+{
+    /// <summary>
+    /// Provides a way for objects involved in navigation to determine if a navigation request should continue.
+    /// </summary>
+    public interface IConfirmNavigationRequest : IRegionAware
+    {
+        /// <summary>
+        /// Determines whether this instance accepts being navigated away from.
+        /// </summary>
+        /// <param name="navigationContext">The navigation context.</param>
+        /// <param name="continuationCallback">The callback to indicate when navigation can proceed.</param>
+        /// <remarks>
+        /// Implementors of this method do not need to invoke the callback before this method is completed,
+        /// but they must ensure the callback is eventually invoked.
+        /// </remarks>
+        void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback);
+    }
+}
+
+
+namespace Prism.Navigation.Regions
+{
+    /// <summary>
+    /// Provides a way for objects involved in navigation to be notified of navigation activities.
+    /// </summary>
+    public interface IRegionAware
+    {
+        /// <summary>
+        /// Called when the implementer has been navigated to.
+        /// </summary>
+        /// <param name="navigationContext">The navigation context.</param>
+        void OnNavigatedTo(NavigationContext navigationContext);
+
+        /// <summary>
+        /// Called to determine if this instance can handle the navigation request.
+        /// </summary>
+        /// <param name="navigationContext">The navigation context.</param>
+        /// <returns>
+        /// <see langword="true"/> if this instance accepts the navigation request; otherwise, <see langword="false"/>.
+        /// </returns>
+        bool IsNavigationTarget(NavigationContext navigationContext);
+
+        /// <summary>
+        /// Called when the implementer is being navigated away from.
+        /// </summary>
+        /// <param name="navigationContext">The navigation context.</param>
+        void OnNavigatedFrom(NavigationContext navigationContext);
+    }
+}
+
+
+using Prism.Mvvm;
+using Prism.Navigation.Regions;
+using System;
+using System.Windows;
+
+namespace ModuleA.ViewModels
+{
+    public class ViewAViewModel : BindableBase, IConfirmNavigationRequest
+    {
+        public ViewAViewModel()
+        {
+
+        }
+
+        public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
+        {
+            bool result = true;
+
+            if (MessageBox.Show("Do you to navigate?", "Navigate?", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                result = false;
+
+            continuationCallback(result);
+        }
+
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
+            return true;
+        }
+
+        public void OnNavigatedFrom(NavigationContext navigationContext)
+        {
+            
+        }
+
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            
+        }
+    }
+}
+
+```
+
+
 案例： `Person : INotifyPropertyChanged`
 ```c#
 namespace System.ComponentModel
@@ -432,6 +532,20 @@ InvokeCommandAction：定义事件触发时要执行的动作 -->
 ```
 
 
+DataContext，就是这个类的依赖属性
+
+```xml
+    <Window.Resources>
+        <Style TargetType="TabItem">
+            <Setter Property="Header" Value="{Binding DataContext.Title}" />
+        </Style>
+    </Window.Resources>
+```
+
+一般的类，可以继承自 INotifyPropertyChanged。
+view中的类，在Prism框架下，可以继承自： `public class PersonDetailViewModel : BindableBase`
+
+
 **CommandParameter="{Binding}**
 ```xml
 <!-- XAML -->
@@ -598,50 +712,63 @@ View(.xaml) + ViewModel(.cs) 构成 一个 "view"
 
 默认情况下，RequestNavigate 会创建一个新的 View 放到 Region 中。
 
-调用时机：
-1.	导航到视图：
-    • IsNavigationTarget：首先调用，决定是否重用现有视图实例。
-    • OnNavigatedTo：如果导航到当前视图，则调用此方法进行初始化或更新操作。
-2.	导航离开视图：
-    • OnNavigatedFrom：当导航离开当前视图时调用，用于执行清理或保存操作。
+```cs
+        public bool IsNavigationTarget(NavigationContext navigationContext)
+        {
 
-第一次切导航的时候：`_regionManager.RequestNavigate("PersonDetailsRegion", "PersonDetail", parameters); `的时候，测试发现：
 
-- 会直接调用OnNavigatedTo，而不会调用IsNavigationTarget。
+            // RequestNavigate到等价于 add “view”(instance）且不会销毁，会一直挂在TabView下成为TabItem
+            // add “view” ==  PersonDetail + PersonDetailViewModel
 
-第2切导航的时候，发现会先调用IsNavigationTarget，然后再调用OnNavigatedTo
+            // Navigate多次的话，就会保存有多个TabItem的各自的instance。
+            // 当这里需要做判断，如下所示： rst的判断
+            // 则会重新遍历所有的已经创建的 “view”
+            // 如果某个一返回true，则直接跳转过去
+            // 如果所有的都返回false，则会重新创建一个新的“view”
 
-RequestNavigate 会尝试在区域中创建新的视图
-- 如果区域是 TabControl，会自动创建新的 TabItem
-- 是否创建新的 TabItem 取决于：
-- IsNavigationTarget 的返回值
-    - 当前视图的状态
-    - 导航参数
-    - 可以通过 IsNavigationTarget 控制视图重用
-关键点：
-- 导航会创建新的视图
-- 区域类型决定视图的容器（这里是 TabItem）
-- IsNavigationTarget 控制是否重用视图
-- 每个导航请求都可能创建新的 TabItem
-- 视图重用可以避免创建不必要的 TabItem
+
+
+
+            // true表示重用，不需要销毁和重新创建
+            // false表示重新创建新的
+
+            var check_person = navigationContext.Parameters["person"] as Person;
+            if (check_person != null)
+            {
+                var rst = SelectedPerson != null && SelectedPerson.LastName == check_person.LastName;
+                return rst;
+            }
+            else
+                return true;
+        }
+```
 
 
 总结，有同一个区域切换view的情况可以使用，更方便一点。比如：
 1. 常规的换画面。 <ContentControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
 2. TabList中的TabItem处理。 <TabControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
 
-DataContext，就是这个类的依赖属性
 
-```xml
-    <Window.Resources>
-        <Style TargetType="TabItem">
-            <Setter Property="Header" Value="{Binding DataContext.Title}" />
-        </Style>
-    </Window.Resources>
+**ConfirmNavigationRequest**
+
+```cs
+        public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
+        {
+            // 当用户尝试从当前视图active view （ViewA）导航到另一个视图时，这个函数会被自动调用。
+            bool result = true;
+
+            if (MessageBox.Show("Do you to navigate?", "Navigate?", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                result = false;
+
+            continuationCallback(result);
+        }
 ```
 
-一般的类，可以继承自 INotifyPropertyChanged。
-view中的类，在Prism框架下，可以继承自： `public class PersonDetailViewModel : BindableBase`
+
+**NavigationJournal**
+
+分别navigate到viewA/viewB/viewC/viewD等，当前假设是在viewD(active)，其他的viewA/viewB/viewC都是在navigation stack中。支持go back/go forward。
+
 
 
 ## 参考资料
