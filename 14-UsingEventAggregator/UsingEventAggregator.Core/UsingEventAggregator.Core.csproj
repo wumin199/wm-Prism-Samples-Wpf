@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(PrismTargetFramework)</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <AssemblyName>UsingEventAggregator.Core</AssemblyName>
     <UseWPF>true</UseWPF>
   </PropertyGroup>

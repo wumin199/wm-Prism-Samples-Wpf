@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>$(PrismTargetFramework)</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <AssemblyName>Modules</AssemblyName>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Prism.Unity" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ModuleA\ModuleA.csproj" />
   </ItemGroup>
 </Project>

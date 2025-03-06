@@ -14,6 +14,7 @@ namespace ModuleA.ViewModels
 
         public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
         {
+            // 当用户尝试从当前视图active view （ViewA）导航到另一个视图时，这个函数会被自动调用。
             bool result = true;
 
             if (MessageBox.Show("Do you to navigate?", "Navigate?", MessageBoxButton.YesNo) == MessageBoxResult.No)

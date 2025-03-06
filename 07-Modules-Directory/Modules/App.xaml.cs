@@ -3,6 +3,7 @@ using Prism.Modularity;
 using Prism.Unity;
 using Prism.Ioc;
 using System.Windows;
+using System.IO;
 
 namespace Modules
 {
@@ -23,7 +24,9 @@ namespace Modules
 
         protected override IModuleCatalog CreateModuleCatalog()
         {
-            return new DirectoryModuleCatalog() { ModulePath = @".\Modules" };
+            // 有问题，先不测试
+            var modulePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ModuleA");
+            return new DirectoryModuleCatalog() { ModulePath = modulePath };
         }
     }
 }

@@ -31,6 +31,8 @@ namespace ModuleA.ViewModels
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
+            // false:重新实例化view/viewModel
+            // true:重用已有的view/viewModel
             return PageViews / 3 != 1;
         }
 
