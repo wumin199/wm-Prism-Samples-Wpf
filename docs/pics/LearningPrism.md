@@ -1,18 +1,12 @@
 
-
-https://app.pluralsight.com/ilx/video-courses/fca37260-bdfb-4c6a-b6c8-ac6bc30f2d6e/e8dbe6fb-e509-4764-9e96-549a74d4e986/e17219ef-59b6-4b27-a124-419bc180664e
-
-
-
-
 ## 集中问题
 
 
 
 1. 接口 和 abstract
-2. Ribbon
+2. Ribbon，DropdownList
 3. 案例
-4. [Dependency Injection with Prism](https://docs.prismlibrary.com/docs/dependency-injection/index.xml)
+4. [Dependency Injection with Prism](https://docs.prismlibrary.com/docs/dependency-injection)
 5. DevExpress
 
 
@@ -630,7 +624,7 @@ RequestNavigate 会尝试在区域中创建新的视图
 1. 常规的换画面。 <ContentControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
 2. TabList中的TabItem处理。 <TabControl Margin="5" prism:RegionManager.RegionName="ContentRegion" />
 
-DataContext，就是这个类的依赖属性
+DataContext，就是这个类的依赖属性，可以和前端进行数据绑定。
 
 ```xml
     <Window.Resources>
@@ -642,6 +636,43 @@ DataContext，就是这个类的依赖属性
 
 一般的类，可以继承自 INotifyPropertyChanged。
 view中的类，在Prism框架下，可以继承自： `public class PersonDetailViewModel : BindableBase`
+
+
+## 20250306 dialog
+
+
+model类型(ShowDialog)：必须关闭才能返回主界面
+non-model类型(show)：可以和主界面自由点击
+prism中，dialog是个user control
+
+
+## 其他
+
+**TriggerParameterPath="AddedItems" 到底是啥，就是指定输入参数的意思么。如果是的花，为啥不用：CommandParameter**
+
+TriggerParameterPath:
+- 用于从事件参数中提取特定属性值
+- 在事件触发时动态获取值
+- 指向事件参数对象中的属性路径
+
+CommandParameter:
+- 用于传递静态值或绑定值
+- 值是预先确定的，不依赖于事件参数
+- 通常用于传递固定值或视图模型中的属性
+
+这里的 AddedItems 是 SelectionChangedEventArgs 类中的一个属性：
+
+```xml
+        <ListBox Grid.Row="1" Margin="5" ItemsSource="{Binding Items}" SelectionMode="Single">
+            <i:Interaction.Triggers>
+                <!-- This event trigger will execute the action when the corresponding event is raised by the ListBox. -->
+                <i:EventTrigger EventName="SelectionChanged">
+                    <!-- This action will invoke the selected command in the view model and pass the parameters of the event to it. -->
+                    <prism:InvokeCommandAction Command="{Binding SelectedCommand}" TriggerParameterPath="AddedItems" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
+```
 
 
 ## 参考资料
